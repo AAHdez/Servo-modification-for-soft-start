@@ -1,0 +1,84 @@
+/* WIRING SETUP
+ *  servo-pot    -> A1
+ *  servo-5V     -> 5V
+ *  servo-GNG    -> GND
+ *  servo-signal -> D3
+ */
+
+#include <Servo.h>
+
+// Servo configuration
+Servo servo;
+int const analogPin = 1;
+int ServoPosition = 0;
+
+// variables
+int const InitialAngle = 0;
+int const FinalAngle = 180;
+float InitialPotValue;
+float FinalPotValue;
+float val = 0;
+int angle = 0;
+
+// m & n variables for the formula
+// y = mx + n
+float m = 0;
+float n = 0;
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  servo.attach(3);
+  servo.write(0);
+  delay(1000);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+  while (ServoPosition <= FinalAngle) {
+    servo.write(ServoPosition);
+    delay(100);
+    
+    val = analogRead(analogPin);
+    val = val*(5.0/1023.0);
+
+    // get initial servo-pot voltage value
+    if (ServoPosition == InitialAngle) {
+      InitialPotValue = val;      
+    }
+
+    // get last servo-pot voltage value and
+    // calculate the parameters of the line
+    // in the form y = mx + n
+    if (ServoPosition == FinalAngle) {
+      FinalPotValue = val;
+
+      Serial.print(" ");
+      Serial.print("Initial_Value=");
+      Serial.print(InitialPotValue,4);
+      Serial.print(" ");
+      Serial.print("Final_Value=");
+      Serial.print(FinalPotValue,4);      
+
+      // calculating m
+      m = (FinalPotValue - InitialPotValue)/
+          (FinalAngle - InitialAngle);
+      Serial.print(" ");
+      Serial.print("m=");
+      Serial.print(m,4);
+
+      // calculating n
+      n = FinalPotValue - (m * FinalAngle);
+      Serial.print(" ");
+      Serial.print("n=");
+      Serial.print(n,4);
+    }
+
+    // printing servo-pot voltage values
+    Serial.print(" ");
+    Serial.println(val);
+    
+    ServoPosition += 1;
+  }
+}
