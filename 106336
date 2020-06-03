@@ -1,0 +1,66 @@
+/* WIRING SETUP
+ *  servo-pot    -> A1
+ *  servo-5V     -> 5V
+ *  servo-GNG    -> GND
+ *  servo-signal -> D3
+ */
+
+#include <Servo.h>
+Servo servo;
+
+int pos = 0;
+int angle = 0;
+float val = 0;
+int ServoIniPosition = 45;
+// time to wait for servo steps on soft-start
+int IniSpeed = 20;   
+
+const float m = 0.0147;
+const float n = 0.3421;
+
+int analogPin = 1;
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+
+  // servo initialization
+  ServoIni();  
+
+  delay(100);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
+
+void ServoIni() {
+  // measure pot value 
+  val = analogRead(analogPin);
+  val = val*(5.0/1023.0);
+  
+  // calculate servo position
+  angle = (val - n)/ m;
+  
+  // write servo position first and then attach it
+  pos = angle;
+  servo.write(pos);
+  servo.attach(3);
+
+  // go to servo initial position
+  if (pos > ServoIniPosition) {
+    while (pos > ServoIniPosition){
+    pos -= 1;
+    servo.write(pos);
+    delay(IniSpeed);
+    }  
+  }
+  else {
+    while (pos < ServoIniPosition) {
+    pos += 1;
+    servo.write(pos);
+    delay(IniSpeed);
+    }
+  }
+}
